@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<meta name="viewport" 
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+
+<link href="style.css" rel="stylesheet">
+
+<title>Chan Da Lair</title>
+
+<div class="container">
+  <h1>Chan Da Lair</h1>
+  <p>
+    Hacky WIP
+    <a href="https://chat.openai.com">ChatGPT</a>
+    demo by
+    <a href="https://nuru.nu">nuru.nu</a>
+    using
+    <a href="https://learn.microsoft.com/en-us/azure/cognitive-services/speech-service/overview">Azure Speech</a>.
+  </p>
+  <br>
+
+  <div class="outer">
+
+    <div class="left">
+      <div id="speaker"></div>
+      <!-- <canvas id="canvas" width="256" height="256"></canvas> -->
+      <pre id="log"></pre>
+      <div class="group">
+        <!-- <p>system instructions; you can use <code>{locale}</code>:</p> -->
+        <p>system instructions
+          <a href="#" onclick="location.href=location.href.split('#')[0]">reset</a>:
+        </p>
+        <textarea id="system" rows="10"></textarea>
+      </div>
+    </div>
+    
+    <div class="right">
+      <div>
+        <input type="checkbox" id="recording" disabled>
+        <label for="recording" id="recording_label">recording</label>
+      </div>
+      <div>manual:<input type="text" id="input" size="30"></div>
+      <p id="transcript"></p>
+      <div id="messages"></div>
+    </div>
+
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/microsoft-cognitiveservices-speech-sdk@latest/distrib/browser/microsoft.cognitiveservices.speech.sdk.bundle-min.js"></script>
+<script src="swissgl.js"></script>
+<script src="app.js" type="module"></script>

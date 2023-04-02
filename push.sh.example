@@ -1,0 +1,18 @@
+#/bin/bash
+
+USER=
+HOST=
+DST=/var/www/html/chandalair/
+if [ "$1" = 'test' ]; then
+    DST=/var/www/html/chandalair/test/
+fi
+
+cd "$(dirname $0)"
+rsync -rvzt \
+    --exclude tmp \
+    --exclude push.sh \
+    --exclude server.py \
+    --exclude README.md \
+    --exclude .gitignore \
+    --exclude .git \
+    . $USER@$HOST:$DST

@@ -1,0 +1,124 @@
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg-col: white;
+    --fg-col: black;
+    --warn-col: darkorange;
+    --error-col: orangered;
+    --hl-col: #eee;
+    --inactive: lightgray;
+    --active: #f00;
+  }
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-col: #333;
+    --fg-col: #ccc;
+    --warn-col: darkorange;
+    --error-col: orangered;
+    --hl-col: #666;
+    --inactive: gray;
+    --active: #0f0;
+  }
+}
+
+body, select, input, textarea {
+  background: var(--bg-col);
+}
+* {
+  color: var(--fg-col);
+}
+
+p {
+  margin: 0;
+}
+
+.container {
+  max-width: 768px;
+  margin: 0 auto;
+}
+
+.outer {
+  display: flex;
+  gap: 1em;
+}
+
+@media (max-width: 500px) {
+  .outer {
+    flex-direction: column;
+  }
+}
+
+.left, .right {
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
+}
+.left {
+  max-width: 20em;
+}
+@media (max-width: 500px) {
+  .left {
+    max-width: 100%;
+  }
+}
+
+.right {
+  flex-grow: 1;
+}
+
+/* left */
+
+#log {
+  background: var(--hl-col);
+  min-height: 10em;
+  max-height: 10em;
+  overflow: scroll;
+}
+
+#log > div {
+  display: flex;
+  gap: 1em;
+}
+
+#log > div.warning {
+  background: var(--warn-col);
+}
+
+#log > div.error {
+  background: var(--error-col);
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+}
+
+/* right */
+
+#messages {
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
+}
+
+#messages > div {
+  border: 1px solid var(--fg-col);
+  border-radius: 0.5em;
+  padding: 0.5em;
+}
+
+#messages > div.human {
+  background: var(--hl-col);
+}
+
+#messages .header {
+  display: flex;
+  gap: 1em;
+  justify-content: flex-end;
+  border-bottom: 1px solid var(--fg-col);
+}
+
+#messages .message {
+  margin-top: 0.5em;
+}
+

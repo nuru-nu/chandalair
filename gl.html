@@ -1,0 +1,99 @@
+<script src="swissgl.js"></script>
+<canvas id="c" width="512" height="512"></canvas>
+<script>
+  const canvas = document.getElementById('c');
+  const glsl = SwissGL(canvas);
+  let t0 = 0, clicked;
+  canvas.addEventListener('click', () => clicked = 1);
+  function render(t) {
+    t /= 1000;
+    if (clicked) {
+      t0 = t;
+      clicked = 0;
+    }
+
+    const r = .2 + .5 * Math.exp(5*(t0 - t));
+    glsl({
+      t,
+      r,
+      fg: [1, 0, 0, 1], bg: [1, 1, 1, 1],
+      FP:`
+      vec2 uv = ((UV-.5)*2.).xy;
+      float v = smoothstep(max(0., r), max(0.,r-.2), length(uv));
+      FOut = mix(bg, fg, v);
+      // FOut=vec4(1.,1.-v,1.-v,1.);
+      `,
+    });
+
+    // glsl({t,
+    //     Mesh:[2,2],
+    //     VP:`XY*0.8+sin(t+XY.yx*2.0)*0.2,0,1`,
+    //     FP:`UV,0.5,1`
+    // });
+
+    // glsl({
+    //   t,
+    //   Grid:[2,2],
+    //   Mesh:[8,8],
+    //   Aspect:'fit',
+    //   Inc:`varying vec3 color;`,
+    //   VP:`color = hash(ID + ivec3(1, 2, 3));
+    //   vec2 pos = vec2(ID) + 0.5 + XY*(0.5-0.5/vec2(Mesh+1));
+    //   // vec2 pos = 0.5 + XY*(0.5-0.5/vec2(Mesh+1));
+    //   pos += sin(UV*TAU+t).yx*0.1*(sin(t*0.5));
+    //   //VOut = vec4(2.0*pos/vec2(Grid)-1.0, 0.0, 1.0);
+    //   // VOut = vec4(2.0*pos/vec2(Grid)-1.0, 0.0, 1.0);
+    //   VOut = vec4(2.0*pos/vec2(Grid)-1., 0.0, 1.0);
+    //   `,
+    //   // FP:`mix(color, vec3(1.0), wireframe()*0.5),1`,
+    //   FP:`mix(color, vec3(1), wireframe()),1`,
+    // });
+
+
+    // const params = {
+    //   "time": 113.482261,
+    //   "xrMode": false,
+    //   "cameraYPD": {
+    //     "0": 2.356194496154785,
+    //     "1": 0.7853981852531433,
+    //     "2": 1.7999999523162842
+    //   }
+    // };
+    // glsl({
+    //   ...params,
+    //   xrMode: false,
+    //   time: t,
+    //   cameraYPD: [
+    //       2.467277765274048,
+    //       1.3942642211914062,
+    //       1.7999999523162842,
+    // ],
+    //   Grid:[10,10,10],
+    //   Clear:[0.2, 0.2, 0.3, 1],
+    //   Aspect:'fit',
+    //   DepthTest:1,
+    //   AlphaCoverage:1,
+    //   Inc:`
+    //   varying vec3 color;`,
+    //   VP:`
+    //   vec3 p = color = vec3(ID)/vec3(Grid-1);
+    //   vec4 pos = vec4(p-0.5, 1);
+    //   pos = wld2view(pos);
+    //   pos.xy += XY*0.03;  // offset quad corners in view space
+    //   VOut = view2proj(pos);`, FP:`
+    //   float r = length(XY);
+    //   float alpha = smoothstep(1.0, 1.0-fwidth(r), r);
+    //   FOut = vec4(color, alpha);`,
+    // });
+
+    // glsl({
+    //     t,
+    //     k:7,
+    //     // FP:`1-((I.x+int(t*40.))^(I.y+int(t*20.)))%int(k)`,
+    //     FP:`I.x==100`,
+    // })
+
+  requestAnimationFrame(render);
+  }
+requestAnimationFrame(render);
+</script>
