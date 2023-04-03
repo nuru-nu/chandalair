@@ -6,9 +6,10 @@ Simple ChatGPT Web-Interface using Azure cognitive speech services for speech
 to text and text to speech.
 
 Configuration (required before use): Copy `config.json.example` to
-`config.json` and add API keys. Note that API key is shown in client and there
-is no rate limiting currently, so share any published version with care (and
-make sure to set tight spending limits).
+`config.json` and add API keys, Firebase config, and optionally Google
+Analytics. Note that API key is shown in client and thereis no rate limiting
+currently, so share any published version with care (and make sure to set tight
+spending limits).
 
 Local development: start `python3 server.py`
 
@@ -18,6 +19,7 @@ Push to devel: `./push.sh test` (adapt from `push.sh.example`)
 
 TODO:
 
+- set up firestore access rules
 - Fancy swiss.gl-based animation of the generated voice.
 - Connection to DMX controller.
 - Improve design, dark mode.
