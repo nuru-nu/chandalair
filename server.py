@@ -6,6 +6,7 @@ config = json.load(open('config.json'))
 azure_key = config['azure_key']
 azure_region = config['azure_region']
 openai_key = config['openai_key']
+ga_client_id = config['ga_client_id']
 
 
 def get_token():
@@ -19,6 +20,7 @@ def get_token():
     azure_token=azure_token,
     azure_region=azure_region,
     openai_key=openai_key,
+    ga_client_id=ga_client_id,
   ))
 
 

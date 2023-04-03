@@ -16,6 +16,7 @@ $config = json_decode(file_get_contents('config.json'), true);
 $azure_key = $config['azure_key'];
 $azure_region = $config['azure_region'];
 $openai_key = $config['openai_key'];
+$ga_client_id = $config['ga_client_id'];
 
 $ch = curl_init();
 curl_setopt($ch, CURLOPT_URL, 'https://' . $azure_region . '.api.cognitive.microsoft.com/sts/v1.0/issueToken');
@@ -30,5 +31,6 @@ print(json_encode([
   'azure_token' => $azure_token,
   'azure_region' => $azure_region,
   'openai_key' => $openai_key,
+  'ga_client_id' => $ga_client_id,
 ]));
 ?>

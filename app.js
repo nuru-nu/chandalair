@@ -100,7 +100,7 @@ input.value = state.manual;
 input.focus();
 
 
-let ready, speaker, listener;
+let ready, speaker, listener, db, session_id;
 async function init() {
   const tokens = await (await fetch('token.php')).json();
 
@@ -110,8 +110,8 @@ async function init() {
     token: tokens.azure_token,
     region: tokens.azure_region,
   };
-  if (location.href.startsWith('https://nuru.nu/chandalair')) {
-    analytics.google('G-0LRXMPENQ2');
+  if (tokens.ga_client_id && location.href.startsWith('https://nuru.nu/chandalair')) {
+    analytics.google(tokens.ga_client_id, sid => session_id = sid);
   }
 
   ({ listener, speaker } = await audio.init(azure_auth));

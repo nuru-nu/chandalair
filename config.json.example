@@ -1,5 +1,6 @@
 {
   "azure_key": "ENTER YOUR AZURE SPEECH API KEY HERE",
   "azure_region": "westeurope",
-  "openai_key": "ENTER YOUR OPENAI API KEY HERE"
+  "openai_key": "ENTER YOUR OPENAI API KEY HERE",
+  "ga_client_id": ""
 }

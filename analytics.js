@@ -21,10 +21,12 @@ function loadScript(src, callback)
   t.parentNode.insertBefore(s, t);
 }
 
-export function google(tag) {
+export function google(tag, cb) {
   loadScript(`https://www.googletagmanager.com/gtag/js?id=${tag}`)
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
   gtag('config', tag);
+
+  cb && gtag('get', tag, 'session_id', cb);
 }
