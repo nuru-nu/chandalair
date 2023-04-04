@@ -11,7 +11,7 @@ error_reporting(E_ALL);
 
 header('Access-Control-Allow-Origin: ' . $_SERVER['SERVER_NAME']);
 
-$config = json_decode(file_get_contents('config.json'), true);
+$config = json_decode(file_get_contents('../config.json'), true);
 // Replace with your own subscription key and service region (e.g., "westus").
 $azure_key = $config['azure_key'];
 $azure_region = $config['azure_region'];

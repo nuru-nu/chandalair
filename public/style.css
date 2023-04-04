@@ -21,11 +21,18 @@
   }
 }
 
-body, select, input, textarea {
+body, select, input, textarea, button {
   background: var(--bg-col);
+}
+input, button {
+  border: 1px solid var(--fg-col);
 }
 * {
   color: var(--fg-col);
+  font-family: Helvetica, sans;
+}
+textarea {
+  font-family: monospace;
 }
 
 p {

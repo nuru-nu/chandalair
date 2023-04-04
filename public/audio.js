@@ -5,6 +5,15 @@ const sdk = window.SpeechSDK;
 export let speechConfig = null;
 
 export async function init(auth) {
+  const token = await (await fetch(
+    `https://${auth.region}.api.cognitive.microsoft.com/sts/v1.0/issueToken`, {
+      method: 'POST',
+      headers: new Headers({
+        'Content-Type': 'application/json',
+        'Ocp-Apim-Subscription-Key': auth.key,
+      }),
+  })).text();
+  auth = {...auth, token};
   speechConfig = sdk.SpeechConfig.fromAuthorizationToken(auth.token, auth.region);
   speechConfig.outputFormat = sdk.OutputFormat.Detailed;
   speechConfig.speechRecognitionLanguage = 'en-US';

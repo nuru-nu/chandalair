@@ -1,0 +1,15 @@
+// See ../README.md for how to configure this application.
+
+
+// Email for Firestore. Optional.
+export const EMAIL = '';
+
+// Firebase config. Optional.
+export const FIREBASE = {
+  apiKey: "",
+  authDomain: "",
+  projectId: "",
+  storageBucket: "",
+  messagingSenderId: "",
+  appId: "",
+};

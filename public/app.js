@@ -1,11 +1,13 @@
 
-import * as ui from './ui.js';
+import * as config from './config.js';
+import * as ui from './ui/index.js';
 import * as audio from './audio.js';
 import * as chat from './chat.js';
 import * as util from './util.js';
 import * as analytics from './analytics.js';
 import * as vis from './vis.js';
-import { Database } from './db.js';
+import * as db_lib from './db.js';
+import * as pubsub from './pubsub.js';
 
 
 util.onerror(msg => ui.log(msg, 'error'));
@@ -106,23 +108,21 @@ input.addEventListener('keyup', async e => {
   }
 });
 input.value = state.manual;
-input.focus();
 
 
-let ready, speaker, listener, db, session_id = '', session_ms;
-async function init() {
-  const tokens = await (await fetch('token.php')).json();
+let ready, speaker, listener, db = new db_lib.Logger(), session_id = ''
+const session_ms = Date.now();
+async function init(tokens) {
 
   bot = new chat.Bot(tokens.openai_key, system.value);
 
   const azure_auth = {
-    token: tokens.azure_token,
+    key: tokens.azure_key,
     region: tokens.azure_region,
   };
   if (tokens.ga_client_id && location.href.startsWith('https://nuru.nu/chandalair')) {
     analytics.google(tokens.ga_client_id, sid => session_id = sid);
   }
-  session_ms = Date.now();
 
   ({ listener, speaker } = await audio.init(azure_auth));
   speaker.register((id, secs) => vis.listener(id, secs));
@@ -144,10 +144,14 @@ async function init() {
   ui.log('ready!');
   window.speechConfig = audio.speechConfig;
 
-  db = new Database(
-      JSON.parse(tokens.firebase_config),
-      {session_id, session_ms, href: location.href});
+  const devices = await navigator.mediaDevices.enumerateDevices();
+  devices.forEach((device) => {
+    console.log(`${device.kind}: ${device.label} id = ${device.deviceId}`);
+  });
+
   db.log({...state, event: 'ready'});
+  input.focus();
+  pubsub.publish('ready');
 }
 
 function setSpeaker(locale, name, full) {
@@ -163,5 +167,19 @@ function setSpeaker(locale, name, full) {
   }
 }
 
-ui.log('initializing...');
-init();
+async function login(password) {
+  db = new db_lib.Database(
+      config.FIREBASE,
+      {session_id, session_ms, href: location.href});
+  const tokens = await db.login(config.EMAIL, password);
+  ui.log('Login successful');
+  init(tokens);
+}
+
+const settings = ui.renderSettings({
+  target: '#settings',
+  use_login: !!config.FIREBASE.apiKey,
+  login,
+  init,
+});
+
