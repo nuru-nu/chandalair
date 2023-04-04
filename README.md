@@ -34,7 +34,7 @@ OpenAI key to interact with ChatGPT. There are two ways to provision these:
 Copy `public/config.js.example` to `public/config.js` and adapt as described
 above.
 
-Local development: start `python3 server.py`
+Local development: start `(cd public && python3 -m http.server)`
 
 Push to production: `./push.sh` (adapt from `push.sh.example`)
 
