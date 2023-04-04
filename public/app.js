@@ -170,7 +170,7 @@ function setSpeaker(locale, name, full) {
 async function login(password) {
   db = new db_lib.Database(
       config.FIREBASE,
-      {session_id, session_ms, href: location.href});
+      {session_id, session_ms, href: location.href.split('#')[0]});
   const tokens = await db.login(config.EMAIL, password);
   ui.log('Login successful');
   init(tokens);
@@ -182,4 +182,3 @@ const settings = ui.renderSettings({
   login,
   init,
 });
-
