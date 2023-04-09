@@ -3,7 +3,7 @@ import * as pubsub from '../pubsub.js';
 
 style(`
   .settings {
-    background: #444;
+    background: var(--hl-col);
     padding: 0.5em;
     display: flex;
     flex-direction: column;
