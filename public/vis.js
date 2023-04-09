@@ -49,8 +49,9 @@ export function stop() {
 
 const schedule = [];
 export function listener(id, secs) {
-  if (schedule.length)
-    console.assert(secs >= schedule[schedule.length - 1].secs);
+  if (schedule.length && secs < schedule[schedule.length - 1].secs) {
+    console.error(secs, '>=', schedule[schedule.length - 1].secs);
+  }
   schedule.push({id, secs});
   // console.log('scheduled', id, secs);
   next();
@@ -73,8 +74,8 @@ function consume() {
   const {id} = schedule.shift();
   // console.log('consuming', id);
   if (triggering.has(id)) triggered = 1;
-  console.log('viseme', visememap[id]);
-  if (triggering.has(id)) console.log('---------');
+  // console.log('viseme', visememap[id]);
+  // if (triggering.has(id)) console.log('---------');
   next();
 }
 

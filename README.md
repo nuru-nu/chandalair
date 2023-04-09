@@ -45,11 +45,11 @@ Push to devel: `./push.sh test` (adapt from `push.sh.example`)
 
 - Improve design.
 - Fancy swiss.gl-based animation of the generated voice.
-- Stream chat response.
 - More robust behaviour.
 - Modulate voice (shushing, excitement, ...).
 - Add favicon.
 - Make speaker change more robust.
+- Browse db.
 
 Ideas for more robust behaviour:
 

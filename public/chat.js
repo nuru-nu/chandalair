@@ -15,9 +15,10 @@ export class Bot {
     this.messages[0].content = content;
   }
 
-  async interact(message) {
+  async interact(message, ...cbs) {
+    const t0 = Date.now();
     this.messages.push({role: 'user', content: message});
-    const reply = await (await fetch(
+    const response = await fetch(
       'https://api.openai.com/v1/chat/completions', {
         method: 'post',
         headers: new Headers({
@@ -28,10 +29,30 @@ export class Bot {
         body: JSON.stringify({
           model: 'gpt-3.5-turbo',
           messages: this.messages,
+          stream: true,
         }),
-      })).json();
-    console.log('chatgpt', reply);
-    const content = reply.choices[0].message.content;  
+      });
+    const reader = response.body.pipeThrough(new TextDecoderStream()).getReader();
+    let content = '';
+    while (true) {
+      const {value, done} = await reader.read();
+      if (done) break;
+      for (const line of value.split(/\n\n/g)) {
+        if (!line.startsWith('data: ')) continue;
+        const data = line.replace(/^data: /, '');
+        if (data !== '[DONE]') {
+          const d = JSON.parse(data);
+          const delta = d.choices[0].delta.content;
+          if (delta) {
+            // console.info('chatgpt partial:', Date.now() - t0, delta);
+            cbs.forEach(cb => cb(delta));
+            content += delta;
+          }
+        }
+      }
+    }
+    cbs.forEach(cb => cb(''));
+    // console.log('chatgpt final:', content);
     this.messages.push({role: 'user', content});
     return content;
   }

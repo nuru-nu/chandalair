@@ -78,13 +78,16 @@ export function log(message, cls) {
 export const warn = message => log(message, 'warning');
 export const err = message => log(message, 'error');
 
-export function sayit(who, message, cls) {
-  const [msg, _] = el('#messages', '<div', `
+export function sayit(who, text, cls) {
+  const [msg, {message}] = el('#messages', '<div', `
     <div class="header">
       <span class="who">${e(who)}</span>
       <span class="timestamp">${new Date().toLocaleTimeString()}</span>
     </div>
-    <div class="message">${e(message)}</div>
-  `);
+    <div class="message">${e(text)}</div>
+  `, {message: '.message'});
   if (cls) msg.classList.add(cls);
+  return function(text) {
+    message.textContent += text;
+  }
 }

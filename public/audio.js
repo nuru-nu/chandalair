@@ -44,7 +44,7 @@ class Listener {
   notify(result, finished) {
     // https://learn.microsoft.com/en-us/javascript/api/microsoft-cognitiveservices-speech-sdk/speechrecognitioneventargs?view=azure-node-latest
     const data = JSON.parse(result.json);
-    console.log('data', data);
+    // console.log('data', data);
     for (const listener of this.listeners) {
       const text = finished ? data.DisplayText : data.Text;
       listener(text, finished, data.RecognitionStatus);
@@ -52,12 +52,12 @@ class Listener {
   }
 
   onRecognizing(sender, recognitionEventArgs) {
-    console.log('onRecognizing', recognitionEventArgs);
+    // console.log('onRecognizing', recognitionEventArgs);
     this.notify(recognitionEventArgs.result, false);
   }
 
   onRecognized(sender, recognitionEventArgs) {
-    console.log('onRecognized', recognitionEventArgs);
+    // console.log('onRecognized', recognitionEventArgs);
     this.notify(recognitionEventArgs.result, true);
   }
 
@@ -127,59 +127,95 @@ class Speaker {
     }
   }
 
-  sayit(text, donecb) {
-    this.speaking = true;
-    const player = new sdk.SpeakerAudioDestination();
-    const t0 = Date.now();
-    player.onAudioStart = function(_) {
-      console.log("playback started");
-    }
-    player.onAudioEnd = function (_) {
-      console.log("playback finished");
-      donecb();
-    };
-    const audioConfig  = sdk.AudioConfig.fromSpeakerOutput(player);
-    const synthesizer = new sdk.SpeechSynthesizer(
-        this.speechConfig, audioConfig);
-  
-    // synthesizer.synthesizing = function (s, e) {
-    //   console.log('synthesizing', e, e.result.audioData);
-    // };
-    // synthesizer.wordBoundary = function (s, e) {
-    //   console.log('wordBoundary', e);
-    // };
-
-    synthesizer.visemeReceived = (_, e) => {
-      // https://learn.microsoft.com/en-us/azure/cognitive-services/speech-service/how-to-speech-synthesis-viseme?tabs=visemeid&pivots=programming-language-csharp#viseme-id
-      // offset ticks [100ns]
-      // *not* called in real-time, but ~10x faster
-      // const t = (Date.now() - t0);
-      const secs = e.audioOffset / 1e7;
-      const viseme = e.visemeId;
-      // console.log('visemeReceived', t, secs, viseme);
-      this.notify(viseme, secs);
-    }
-
-    // synthesizer.bookmarkReached = function (s, e) {
-    //   console.log('bookmarkReached', e);
-    // }
-  
-    synthesizer.speakTextAsync(text,
-      result => {
-        if (result.reason === sdk.ResultReason.SynthesizingAudioCompleted) {
-          console.log('synthesizer finished', result);
-        } else {
-          console.log('synthesizer failed', result.errorDetails);
-          donecb(`Could not synthesize: ${result.errorDetails}`);
-        }
-        synthesizer.close();
-        this.speaking = false;
-      },
-      err => {
-        console.log('synthesizer error', err);
-        synthesizer.close();
-        this.speaking = false;
+  sayit(text) {
+    return new Promise((resolve, reject) => {
+      if (!text) return resolve();
+      this.speaking = true;
+      const player = new sdk.SpeakerAudioDestination();
+      const t0 = Date.now();
+      player.onAudioStart = function(_) {
+        // console.log("playback started");
       }
-    );
+      player.onAudioEnd = function (_) {
+        // console.log("playback finished");
+        resolve();
+      };
+      const audioConfig  = sdk.AudioConfig.fromSpeakerOutput(player);
+      const synthesizer = new sdk.SpeechSynthesizer(
+          this.speechConfig, audioConfig);
+    
+      // synthesizer.synthesizing = function (s, e) {
+      //   console.log('synthesizing', e, e.result.audioData);
+      // };
+      // synthesizer.wordBoundary = function (s, e) {
+      //   console.log('wordBoundary', e);
+      // };
+
+      synthesizer.visemeReceived = (_, e) => {
+        // https://learn.microsoft.com/en-us/azure/cognitive-services/speech-service/how-to-speech-synthesis-viseme?tabs=visemeid&pivots=programming-language-csharp#viseme-id
+        // offset ticks [100ns]
+        // *not* called in real-time, but ~10x faster
+        // const t = (Date.now() - t0);
+        const secs = e.audioOffset / 1e7;
+        const viseme = e.visemeId;
+        // console.log('visemeReceived', t, secs, viseme);
+        this.notify(viseme, secs);
+      }
+
+      // synthesizer.bookmarkReached = function (s, e) {
+      //   console.log('bookmarkReached', e);
+      // }
+    
+      synthesizer.speakTextAsync(text,
+        result => {
+          if (result.reason === sdk.ResultReason.SynthesizingAudioCompleted) {
+            // Note: this means the data is buffered, but not yet spoken.
+            // console.log('synthesizer finished', result);
+          } else {
+            console.log('synthesizer failed', result.errorDetails);
+            reject(`Could not synthesize: ${result.errorDetails}`);
+          }
+          synthesizer.close();
+          this.speaking = false;
+        },
+        err => {
+          console.log('synthesizer error', err);
+          synthesizer.close();
+          this.speaking = false;
+        }
+      );
+    });
   }
+}
+
+// This function returns a `done` promise and a callback that can be used for
+// enqueueing text asynchronuously. As soon as enough text is queued (currently
+// determined simply by looking for punctuation), the async `sayit` is called
+// with that text, while more text is being queued in parallel.
+// Once the callback is called with an empty text, the enqueued text is finished
+// and then `done` resolves.
+export function buffered(sayit) {
+  let buffered_resolve, buffered_reject;
+  let ongoing = Promise.resolve(), partial = '';
+  const t0 = Date.now();
+  const done = new Promise((resolve, reject) => {
+    buffered_resolve = resolve;
+    buffered_reject = reject;
+  });
+  function cb(text) {
+    try {
+      partial += text;
+      if (!text || partial.match(/[\.,?!:;]\s*$/)) {
+        ongoing = ongoing.then(() => {
+          const text = partial;
+          partial = '';
+          return sayit(text);
+        });
+        text || ongoing.then(buffered_resolve).catch(buffered_reject);
+      }
+    } catch (e) {
+      buffered_reject(e);
+    }
+  }
+  return {done, cb};
 }

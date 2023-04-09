@@ -78,22 +78,21 @@ async function interact(text, recorded) {
   label.textContent = '(politely waiting...)';
   listener.pause();
   update_url();
-  ui.sayit('human', text, 'human');
-  bot.system = system.value.replace('{locale}', state.locale);
   const t0 = Date.now();
-  const reply = await bot.interact(text);
-  db.log({event: 'interact', dt: Date.now()-t0, text, reply, recorded});
-  const promise = new Promise(resolve => {
+
+  ui.sayit('human', text, 'human');
+  const ui_cb = ui.sayit('bot', '', 'bot');
+  bot.system = system.value.replace('{locale}', state.locale);
+  const {done, cb} = audio.buffered(text => {
     vis.start();
-    speaker.sayit(reply, err => {
-      if (err) ui.log(err, 'error');
-      listener.resume();
-      label.textContent = label_text;
-      resolve();
-    });
+    return speaker.sayit(text);
   });
-  ui.sayit('bot', reply, 'bot');
-  await promise;
+  const reply = await bot.interact(text, cb, ui_cb);
+  db.log({event: 'interact', dt: Date.now()-t0, text, reply, recorded});
+  await done;
+
+  listener.resume();
+  label.textContent = label_text;
   return true;
 }
 
