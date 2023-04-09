@@ -50,20 +50,12 @@ let bot;
 
 function startstop() {
   if (recording.checked) {
-    if (!listener.listening) {
-      listener.start();
-      ui.log('started recording');
-      input.value = '';
-    } else {
-      ui.log('recording already running', 'warning');
-    }
+    listener.start();
+    ui.log('started recording');
+    input.value = '';
   } else {
-    if (listener.listening) {
-      listener.stop();
-      ui.log('stopped recording');
-    } else {
-      ui.log('cannot stop recording', 'warning');
-    }
+    listener.stop();
+    ui.log('stopped recording');
   }
 }
 recording.addEventListener('change', startstop);
@@ -162,8 +154,8 @@ function setSpeaker(locale, name, full) {
   if (new_locale && recording.checked) {
     ui.log('restart recording');
     listener.stop();
-    listener.start();
-  }
+      listener.start();
+    }
 }
 
 async function login(password) {

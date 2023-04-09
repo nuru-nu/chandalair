@@ -35,6 +35,8 @@ class Listener {
     this.speechConfig = speechConfig;
     this.listeners = new Set();
     this.reco = null;
+    this.paused = false;
+    this.scheduled_start = false;
   }
 
   register(listener) {
@@ -62,6 +64,11 @@ class Listener {
   }
 
   start() {
+    if (this.paused) {
+      this.scheduled_start = true;
+      return;
+    }
+    this.scheduled_start = false;
     const audioConfig = sdk.AudioConfig.fromDefaultMicrophoneInput();
     this.reco = new sdk.SpeechRecognizer(
         this.speechConfig, audioConfig);
@@ -71,24 +78,26 @@ class Listener {
   }
 
   pause() {
-    this.reco && this.reco.stopContinuousRecognitionAsync();
+    this.paused = true;
+    this.listening && this.reco.stopContinuousRecognitionAsync();
   }
 
   resume() {
-    this.reco && this.reco.startContinuousRecognitionAsync();
+    this.paused = false;
+    if (this.scheduled_start) {
+      this.start();
+    } else {
+      this.listening && this.reco.startContinuousRecognitionAsync();
+    }
   }
 
   stop() {
-    this.reco.stopContinuousRecognitionAsync(
-      () => {
-          this.reco.close();
-          this.reco = null;
-      },
-      err => {
-          this.reco.close();
-          this.reco = null;
-      }
-    );
+    this.scheduled_start = false;
+    const close = () => {
+      this.reco.close();
+      this.reco = null;
+    };
+    this.listening && this.reco.stopContinuousRecognitionAsync(close, close);
   }
 
   get listening() {
