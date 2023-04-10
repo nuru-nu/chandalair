@@ -205,22 +205,36 @@ class Speaker {
 // and then `done` resolves.
 export function buffered(sayit) {
   let buffered_resolve, buffered_reject;
-  let ongoing = Promise.resolve(), partial = '';
+  let ongoing = Promise.resolve(), partial = '', ended = false;
   const t0 = Date.now();
   const done = new Promise((resolve, reject) => {
     buffered_resolve = resolve;
     buffered_reject = reject;
   });
+  function split(text) {
+    if (ended) return [text, ''];
+    for (const c of '?!.') {
+      const i = text.lastIndexOf(c);
+      if (i !== -1) {
+        return [text.substring(0, i + 1), text.substring(i + 1)];
+      }
+    }
+    return ['', text];
+  }
   function cb(text) {
     try {
+      if (ended) return;
       partial += text;
-      if (!text || partial.match(/[\.,?!:;]\s*$/)) {
+      ended |= !text;
+      let _, sentences;
+      [sentences, _] = split(partial);
+      if (ended || sentences) {
         ongoing = ongoing.then(() => {
-          const text = partial;
-          partial = '';
-          return sayit(text);
+          [sentences, partial] = split(partial);
+          // console.info(buffered, [Date.now() - t0, ended, sentences, partial]);
+          return sayit(sentences);
         });
-        text || ongoing.then(buffered_resolve).catch(buffered_reject);
+        ended && ongoing.then(buffered_resolve).catch(buffered_reject);
       }
     } catch (e) {
       buffered_reject(e);
