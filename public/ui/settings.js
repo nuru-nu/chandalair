@@ -51,7 +51,7 @@ export function render({target, use_login, login, init}) {
     login(els.password.value);
   }
 
-  els.login.addEventListener('click', login);
+  els.login.addEventListener('click', _login);
   els.password.addEventListener('keyup', e => e.key === 'Enter' && _login());
 
   els.openai_key.value = localStorage.getItem('openai_key') || '';
