@@ -23,3 +23,7 @@ export function style(css) {
   sheet.innerText = css;
   document.head.appendChild(sheet);
 }
+
+export const e = s => (
+  String(s).replace(/>/g, '&gt;').replace(/</g, '&lt;').replace(/"/g, '&quot;')
+);

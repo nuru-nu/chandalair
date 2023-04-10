@@ -2,7 +2,7 @@
 const sdk = window.SpeechSDK;
 
 
-export let speechConfig = null;
+export let speechConfig = null, fileExtension = null;
 
 export async function init(auth) {
   const token = await (await fetch(
@@ -19,6 +19,7 @@ export async function init(auth) {
   speechConfig.speechRecognitionLanguage = 'en-US';
   speechConfig.speechSynthesisVoiceName = 'Microsoft Server Speech Text to Speech Voice (en-US, JennyNeural)';
   speechConfig.speechSynthesisOutputFormat = SpeechSDK.SpeechSynthesisOutputFormat.Audio24Khz48KBitRateMonoMp3;
+  fileExtension = 'mp3';
   // speechConfig.speechSynthesisOutputFormat = SpeechSDK.SpeechSynthesisOutputFormat.Raw16Khz16BitMonoPcm;
 
   const listener = new Listener(speechConfig);
@@ -136,7 +137,7 @@ class Speaker {
     }
   }
 
-  sayit(text) {
+  sayit(text, download) {
     return new Promise((resolve, reject) => {
       if (!text) return resolve();
       this.speaking = true;
@@ -151,7 +152,7 @@ class Speaker {
       };
       const audioConfig  = sdk.AudioConfig.fromSpeakerOutput(player);
       const synthesizer = new sdk.SpeechSynthesizer(
-          this.speechConfig, audioConfig);
+          this.speechConfig, download ? null : audioConfig);
     
       // synthesizer.synthesizing = function (s, e) {
       //   console.log('synthesizing', e, e.result.audioData);
@@ -178,8 +179,10 @@ class Speaker {
       synthesizer.speakTextAsync(text,
         result => {
           if (result.reason === sdk.ResultReason.SynthesizingAudioCompleted) {
-            // Note: this means the data is buffered, but not yet spoken.
             // console.log('synthesizer finished', result);
+            // Note: this means the data is generated, but not yet spoken.
+            // -> Resolve if downloading, otherwise see above player.onAudioEnd
+            download && resolve(result);
           } else {
             console.log('synthesizer failed', result.errorDetails);
             reject(`Could not synthesize: ${result.errorDetails}`);

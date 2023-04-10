@@ -60,6 +60,15 @@ function startstop() {
 }
 recording.addEventListener('change', startstop);
 
+const sayit_links = {
+  'download': async (text, who) => {
+    const result = await speaker.sayit(text, s => console.log('download', s));
+    ui.download(result.audioData, `${who}.${audio.fileExtension}`);
+    console.info('download', result);
+  },
+  'speak': text => speaker.sayit(text),
+}
+
 async function interact(text, recorded) {
   if (speaker.speaking) {
     ui.log(`Ignoring ${input.value} while anwering`, 'warning');
@@ -72,8 +81,8 @@ async function interact(text, recorded) {
   update_url();
   const t0 = Date.now();
 
-  ui.sayit('human', text, 'human');
-  const ui_cb = ui.sayit('bot', '', 'bot');
+  ui.sayit('human', text, 'human', sayit_links);
+  const ui_cb = ui.sayit('bot', '', 'bot', sayit_links);
   bot.system = system.value.replace('{locale}', state.locale);
   const {done, cb} = audio.buffered(text => {
     vis.start();

@@ -1,12 +1,20 @@
 
 
-import { el, style } from './utils.js';
+import { e, el, style } from './utils.js';
 
 export { render as renderSettings } from './settings.js';
 
-const e = s => (
-  String(s).replace(/>/g, '&gt;').replace(/</g, '&lt;').replace(/"/g, '&quot;')
-);
+export function download(data, filename) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([data]));
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => {
+    document.body.removeChild(a);
+    URL.revokeObjectURL(a.href);
+  }, 0);
+}
 
 const favorites = {
   'de-CH': 'Leni',
@@ -80,15 +88,48 @@ export function log(message, cls) {
 export const warn = message => log(message, 'warning');
 export const err = message => log(message, 'error');
 
-export function sayit(who, text, cls) {
-  const [msg, {message}] = el('#messages', '<div', `
+style(`
+.sayit {
+  border: 1px solid var(--fg-col);
+  border-radius: 0.5em;
+  padding: 0.5em;
+}
+.sayit.human {
+  background: var(--hl-col);
+}
+.sayit .header {
+  display: flex;
+  gap: 1em;
+  justify-content: flex-end;
+  border-bottom: 1px solid var(--fg-col);
+}
+.sayit .links_container {
+  display: flex;
+  gap: 1em;
+}
+.sayit .message {
+  margin-top: 0.5em;
+}
+`);
+
+export function sayit(who, text, cls, links) {
+  const [msg, {message, links_container}] = el('#messages', '<div.sayit', `
     <div class="header">
-      <span class="who">${e(who)}</span>
-      <span class="timestamp">${new Date().toLocaleTimeString()}</span>
+    <span class="links_container"></span>
+    <span class="who">${e(who)}</span>
+    <span class="timestamp">${new Date().toLocaleTimeString()}</span>
     </div>
     <div class="message">${e(text)}</div>
-  `, {message: '.message'});
+  `, {message: '.message', links_container: '.links_container'});
   if (cls) msg.classList.add(cls);
+  for(const [name, cb] of Object.entries(links || {})) {
+    const [a, _] = el(links_container, 'a', e(name));
+    a.href = '#';
+    a.addEventListener('click', e => {
+      cb(message.textContent, who);
+      e.preventDefault();
+    });
+  }
   return function(text) {
     message.textContent += text;
   }

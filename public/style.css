@@ -108,24 +108,3 @@ p {
   gap: 1em;
 }
 
-#messages > div {
-  border: 1px solid var(--fg-col);
-  border-radius: 0.5em;
-  padding: 0.5em;
-}
-
-#messages > div.human {
-  background: var(--hl-col);
-}
-
-#messages .header {
-  display: flex;
-  gap: 1em;
-  justify-content: flex-end;
-  border-bottom: 1px solid var(--fg-col);
-}
-
-#messages .message {
-  margin-top: 0.5em;
-}
-
