@@ -213,7 +213,8 @@ export function buffered(sayit) {
   });
   function split(text) {
     if (ended) return [text, ''];
-    for (const c of '?!.') {
+    const cs = Date.now() - t0 > 1000 ? '?!.,-' : '?!.';
+    for (const c of cs) {
       const i = text.lastIndexOf(c);
       if (i !== -1) {
         return [text.substring(0, i + 1), text.substring(i + 1)];
