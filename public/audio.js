@@ -13,6 +13,10 @@ export async function init(auth) {
         'Ocp-Apim-Subscription-Key': auth.key,
       }),
   })).text();
+  if (token.indexOf('error') !== -1) {
+    const error = JSON.parse(text);
+    throw Error(`Could not log in with Azure: ${error.message}`);
+  }
   auth = {...auth, token};
   speechConfig = sdk.SpeechConfig.fromAuthorizationToken(auth.token, auth.region);
   speechConfig.outputFormat = sdk.OutputFormat.Detailed;
