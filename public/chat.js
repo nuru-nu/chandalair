@@ -15,6 +15,16 @@ export class Bot {
     this.messages[0].content = content;
   }
 
+  removeLast(text) {
+    if (this.messages.length > 1) {
+      this.messages.splice(this.messages.length - 1, 1);
+    }
+  }
+
+  pushAssistant(content) {
+    this.messages.push({role: 'assistant', content});
+  }
+
   async interact(message, ...cbs) {
     const t0 = Date.now();
     this.messages.push({role: 'user', content: message});
@@ -27,7 +37,7 @@ export class Bot {
           'Content-Type': 'application/json'
         }),
         body: JSON.stringify({
-          model: 'gpt-3.5-turbo',
+          model: 'gpt-4',
           messages: this.messages,
           stream: true,
         }),

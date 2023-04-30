@@ -13,6 +13,8 @@ import * as pubsub from './pubsub.js';
 util.onerror(msg => ui.log(msg, 'error'));
 
 const recording = document.querySelector('#recording');
+const do_bot = document.querySelector('#do_bot');
+const remove_last = document.querySelector('#remove_last');
 const input = document.querySelector('#input');
 const transcript = document.querySelector('#transcript');
 const system = document.querySelector('#system');
@@ -60,6 +62,11 @@ function startstop() {
 }
 recording.addEventListener('change', startstop);
 
+remove_last.addEventListener('click', () => {
+  bot.removeLast();
+  ui.removeLast();
+});
+
 const sayit_links = {
   'download': async (text, who) => {
     const result = await speaker.sayit(text, s => console.log('download', s));
@@ -99,6 +106,12 @@ async function interact(text, recorded) {
 
 input.addEventListener('keyup', async e => {
   if (e.key === 'Enter') {
+    if (do_bot.checked) {
+      bot.pushAssistant(input.value);
+      ui.sayit('bot', input.value, 'bot', sayit_links);
+      input.value = '';
+      return;
+    }
     if (!ready || speaker.speaking) {
       ui.log('(cannot interact)', 'warning');
     } else {
@@ -140,6 +153,9 @@ async function init(tokens) {
   });
 
   recording.disabled = false;
+  remove_last.disabled = false;
+  do_bot.disabled = false;
+
   ready = true;
   ui.log('ready!');
   window.speechConfig = audio.speechConfig;
@@ -181,4 +197,13 @@ const settings = ui.renderSettings({
   use_login: !!config.FIREBASE.apiKey,
   login,
   init,
+});
+
+config.PRESETS.forEach(preset => {
+  const [el, _] = ui.el('#presets', 'button', ui.e(preset));
+  el.textContent = preset;
+  el.addEventListener('click', () => {
+    input.value = preset;
+    input.focus();
+  })
 });

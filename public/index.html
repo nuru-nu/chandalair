@@ -34,12 +34,15 @@
         </p>
         <textarea id="system" rows="10"></textarea>
       </div>
+      <div id="presets">
+      </div>
     </div>
     
     <div class="right">
       <div>
-        <input type="checkbox" id="recording" disabled>
-        <label for="recording" id="recording_label">recording</label>
+        <input type="checkbox" id="recording" disabled><label id="recording_label">recording</label></input>
+        <input type="checkbox" id="do_bot" disabled><label>do bot</label></input>
+        <button id="remove_last" disabled>remove last</button>
       </div>
       <div>manual:<input type="text" id="input" size="30"></div>
       <p id="transcript"></p>

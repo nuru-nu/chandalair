@@ -13,3 +13,12 @@ export const FIREBASE = {
   messagingSenderId: "",
   appId: "",
 };
+
+// Some prepared answers.
+export const PRESETS = [
+  'Shallow to the bottom.',
+  'I didn\'t get that, can you repeat it?',
+  'Hmm, let me recompute.',
+  'Ask a search engine, not a philosopher',
+  'Mundane at best.',
+];

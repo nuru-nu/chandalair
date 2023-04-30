@@ -2,6 +2,8 @@
 
 import { e, el, style } from './utils.js';
 
+export { e, el, style } from './utils.js';
+
 export { render as renderSettings } from './settings.js';
 
 export function download(data, filename) {
@@ -132,5 +134,12 @@ export function sayit(who, text, cls, links) {
   }
   return function(text) {
     message.textContent += text;
+  }
+}
+
+export function removeLast() {
+  const messages = document.querySelector('#messages');
+  if (messages.firstChild) {
+    messages.removeChild(messages.firstChild);
   }
 }
